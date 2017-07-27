@@ -1,0 +1,166 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use YAML qw/LoadFile/;
+
+BEGIN {
+  unshift @::INC, '/usr/lib/obs/server';
+}
+
+
+if (! caller) {
+
+  my $ret = eval {
+    my $mcoe = Monitoring::Check::OBS::Events->new();
+    $mcoe->getopt();
+    $mcoe->get_config();
+    $mcoe->check_dir_list();
+    $mcoe->check_results();
+  };
+
+  if (! defined $ret) {
+     print "UNKNOWN - $@";
+     exit 3;
+  } 
+}
+
+package Monitoring::Check::OBS::Events;
+our $VERSION = '0.0.1';
+use strict;
+use warnings;
+
+use Getopt::Long qw/GetOptionsFromArray/;
+use Data::Dumper;
+use YAML qw/LoadFile/;
+use BSConfiguration;
+
+# ATTRIBUTES
+sub critical     { shift->_attribute(@_) }
+sub warning      { shift->_attribute(@_) }
+sub config       { shift->_attribute(@_) }
+sub config_file  { shift->_attribute(@_) }
+sub results      { shift->_attribute(@_) }
+
+# METHODS
+sub new {
+  my $class = shift;
+  my $self  =
+    {
+      critical    => 0,
+      warning     => 0,
+      config_file => '/etc/nagios/check_obs_events.yml',
+      results     => [],
+      failed         => [],
+      @_
+    };
+  bless $self, $class;
+  return $self;
+}
+
+sub _attribute {
+  my $self   = shift;
+  my $value  = shift;
+  my @caller = caller(1);
+  my $attr   = $caller[3];
+  $attr      =~ s/.*::([^:]*)$/$1/;
+  if (defined $value) { $self->{$attr} = $value };
+  return $self->{$attr};
+}
+
+sub failed {
+  my ($self) = @_;
+  $self->{failed} = [];
+  @{$self->{failed}} = grep { $_->{state} > 0 } @{$self->results};
+  @{$self->{failed}} = sort { $b->{state} <=> $a->{state} } @{$self->{failed}};
+  return $self->{failed};
+}
+
+sub get_failed_max_state {
+  my ($self) = @_;
+  return $self->{failed}->[0]->{state} || 0;
+}
+
+sub getopt {
+  my ($self) = @_;
+
+  if (! GetOptionsFromArray(\@ARGV, 'warning|w=i' => \$self->{warning}, 'critical|c=i' => \$self->{critical}, 'config=s' => \$self->{config_file} )) {
+    my $bn = $0;
+    $bn =~ s{.*/(.*)$}{$1};
+    print "Usage: $bn <-w warning> <-c critical> <--dir events_subdir>\n";
+    die "Error: Wrong arguments!\n";
+  }
+
+  return $self;
+}
+
+sub get_config {
+  my ($self) = @_;
+  my $cfile = $self->config_file;
+  die "Config file '$cfile' not found!\n" if (! -f $cfile);
+  return $self->config(LoadFile($cfile));
+}
+
+sub check_dir_list {
+  my ($self) = @_;
+  # cleanup results
+  $self->results([]);
+  my $cfg = $self->config;
+  foreach my $dir (@{$cfg->{directories_to_check} || []}) {
+	  $self->check_dir($dir);
+  }
+  return $self->failed();
+}
+
+sub check_dir {
+  my ($self, $dir) = @_;
+
+  my $events_dir = "$BSConfig::bsdir/events";
+
+  my $critical      = (defined($dir->{critical})) ? $dir->{critical} : $self->critical;
+  my $warning       = (defined($dir->{warning})) ? $dir->{warning} : $self->warning;
+  my $my_events_dir = "$events_dir/$dir->{dir}";
+  my $state=0;
+
+  opendir(my $dh, $my_events_dir) || die "Error  while opening '$my_events_dir': $!\n";
+  my @all_files = readdir($dh);
+  closedir($dh);
+  my @events = grep { ! m/^[.]/ } @all_files;
+  my $ev     = scalar @events;
+
+  if ($ev >= $warning)  { $state = 1 }
+  if ($ev >= $critical) { $state = 2 }
+
+  push @{$self->results},
+    {
+      state => $state,
+      msg   =>"$dir->{dir} contains $ev events.",
+      perfdata=>"'$dir->{dir}'=$ev;$warning;$critical"
+    }
+  ;
+
+  return;
+}
+
+sub check_results {
+  my ($self) = @_;
+  my $sname = { 0 => 'OK', 1 => 'WARNING', 2 => 'CRITICAL', 3 => 'UNKNOWN'};
+  my $state = $self->get_failed_max_state();
+
+  if ($state) {
+    print "$sname->{$state} - ".$self->format_output;
+    exit $state
+  } else {
+    print "OK - all eventdirs checked\n";
+    exit 0;
+  }
+}
+
+sub format_output {
+  my ($self) = @_;
+  return 'TO BE IMPLEMENTED';
+}
+
+1;

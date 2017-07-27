@@ -1,0 +1,8 @@
+allowed_directories: a b
+allowed_files: c d
+
+directories_to_check:
+  - dir: e
+    warning: 1
+    critical: 2
+

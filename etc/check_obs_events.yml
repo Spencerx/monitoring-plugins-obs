@@ -1,0 +1,25 @@
+allowed_files: lastevents lastnotifications
+allowed_dirs: deltastore servicedispatch
+
+directories_to_check:
+  - dir: deltastore
+    warning: 10
+    critical: 20
+  - dir: servicedispatch
+    warning: 10
+    critical: 20
+  - dir: armv7l
+    warning: 10
+    critical: 20
+  - dir: i586
+    warning: 10
+    critical: 20
+  - dir: x86_64
+    warning: 10
+    critical: 20
+  - dir: publish
+    warning: 10
+    critical: 20
+  - dir: signer
+    warning: 10
+    critical: 20
