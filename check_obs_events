@@ -124,7 +124,7 @@ sub check_dir {
   my $my_events_dir = "$events_dir/$dir->{dir}";
   my $state=0;
 
-  opendir my $dh, $my_events_dir || die "Error  while opening '$my_events_dir': $!\n";
+  opendir my $dh, $my_events_dir or die "Error  while opening '$my_events_dir': $!\n";
   my @all_files = readdir $dh;
   closedir $dh;
   my @events = grep { ! m/^[.]/smx } @all_files;
