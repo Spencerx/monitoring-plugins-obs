@@ -30,6 +30,8 @@ Source:         %{name}-%{version}.tar.xz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildArch:      noarch
 BuildRequires:  nagios-rpm-macros
+BuildRequires:  perl(YAML)
+Requires:       perl(YAML)
 
 %description
 This a nagios/NRPE compatible plugin for checking Open Build Service
@@ -45,6 +47,9 @@ export DESTDIR=%{buildroot}
 export NAGIOS_PLUGINDIR=%{nagios_plugindir}
 export NAGIOS_PLUGIN_ETC_DIR=%{nagios_plugin_etc_dir}
 make install
+
+%check
+make test
 
 %clean
 %{__rm} -rf %{buildroot}
