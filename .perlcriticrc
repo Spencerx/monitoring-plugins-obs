@@ -1,0 +1,5 @@
+severity = 1
+verbose = 11
+exclude = (Variables::ProhibitPunctuationVars|ValuesAndExpressions::ProhibitMagicNumbers|BuiltinFunctions::ProhibitReverseSortBlock|CodeLayout::RequireTidyCode)
+[InputOutput::RequireCheckedSyscalls]
+exclude_functions = print

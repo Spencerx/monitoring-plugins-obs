@@ -24,7 +24,7 @@ if (! caller) {
   if (! defined $ret) {
      print "UNKNOWN - $@";
      exit 3;
-  } 
+  }
 }
 
 package Monitoring::Check::OBS::Events;
@@ -38,15 +38,15 @@ use YAML qw/LoadFile/;
 use BSConfiguration;
 
 # ATTRIBUTES
-sub critical     { shift->_attribute(@_) }
-sub warning      { shift->_attribute(@_) }
-sub config       { shift->_attribute(@_) }
-sub config_file  { shift->_attribute(@_) }
-sub results      { shift->_attribute(@_) }
+sub critical     { return shift->_attribute(@_) } ## no critic (Subroutines::RequireArgUnpacking)
+sub warning      { return shift->_attribute(@_) } ## no critic (Subroutines::RequireArgUnpacking)
+sub config       { return shift->_attribute(@_) } ## no critic (Subroutines::RequireArgUnpacking)
+sub config_file  { return shift->_attribute(@_) } ## no critic (Subroutines::RequireArgUnpacking)
+sub results      { return shift->_attribute(@_) } ## no critic (Subroutines::RequireArgUnpacking)
 
 # METHODS
 sub new {
-  my $class = shift;
+  my ($class,@args) = @_;
   my $self  =
     {
       critical    => 0,
@@ -54,7 +54,7 @@ sub new {
       config_file => '/etc/nagios/check_obs_events.yml',
       results     => [],
       failed         => [],
-      @_
+      @args
     };
   bless $self, $class;
   return $self;
@@ -63,9 +63,9 @@ sub new {
 sub _attribute {
   my $self   = shift;
   my $value  = shift;
-  my @caller = caller(1);
+  my @caller = caller 1;
   my $attr   = $caller[3];
-  $attr      =~ s/.*::([^:]*)$/$1/;
+  $attr      =~ s/.*::([^:]*)$/$1/smx;
   if (defined $value) { $self->{$attr} = $value };
   return $self->{$attr};
 }
@@ -88,7 +88,7 @@ sub getopt {
 
   if (! GetOptionsFromArray(\@ARGV, 'warning|w=i' => \$self->{warning}, 'critical|c=i' => \$self->{critical}, 'config=s' => \$self->{config_file} )) {
     my $bn = $0;
-    $bn =~ s{.*/(.*)$}{$1};
+    $bn =~ s{.*/(.*)$}{$1}smx;
     print "Usage: $bn <-w warning> <-c critical> <--dir events_subdir>\n";
     die "Error: Wrong arguments!\n";
   }
@@ -124,10 +124,10 @@ sub check_dir {
   my $my_events_dir = "$events_dir/$dir->{dir}";
   my $state=0;
 
-  opendir(my $dh, $my_events_dir) || die "Error  while opening '$my_events_dir': $!\n";
-  my @all_files = readdir($dh);
-  closedir($dh);
-  my @events = grep { ! m/^[.]/ } @all_files;
+  opendir my $dh, $my_events_dir || die "Error  while opening '$my_events_dir': $!\n";
+  my @all_files = readdir $dh;
+  closedir $dh;
+  my @events = grep { ! m/^[.]/smx } @all_files;
   my $ev     = scalar @events;
 
   if ($ev >= $warning)  { $state = 1 }
