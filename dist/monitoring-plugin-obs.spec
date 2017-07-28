@@ -15,6 +15,8 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
+%define nagios_plugin_etc_dir /etc/nagios
+
 Name:           monitoring-plugin-obs
 Version:        0.0.0
 Release:        0
@@ -39,6 +41,9 @@ This a nagios/NRPE compatible plugin for checking Open Build Service
 /bin/true
 
 %install
+export DESTDIR=%{buildroot}
+export NAGIOS_PLUGINDIR=%{nagios_plugindir}
+export NAGIOS_PLUGIN_ETC_DIR=%{nagios_plugin_etc_dir}
 make install
 
 %clean
@@ -46,9 +51,11 @@ make install
 
 %files
 %defattr(-,root,root)
-%doc README.md license.txt
+%doc README.md LICENSE
 %dir %{nagios_libdir}
 %dir %{nagios_plugindir}
-%{nagios_plugindir}/check_docker
+%dir %{nagios_plugin_etc_dir}
+%config (noreplace) %{nagios_plugin_etc_dir}/check_obs_events.yml
+%{nagios_plugindir}/check_obs_events
 
 %changelog
