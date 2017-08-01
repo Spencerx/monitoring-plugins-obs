@@ -1,7 +1,7 @@
 language: perl
 perl:
   - "5.24"
-install: cpanm -q -n YAML Devel::Cover
+install: cpanm -q -n YAML Devel::Cover Perl::Critic Devel::Cover::Report::Codecov
 script:
   - make cover
   - make critic

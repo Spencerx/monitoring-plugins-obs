@@ -3,30 +3,50 @@
 use strict;
 use warnings;
 use Data::Dumper;
-use Test::More tests => 1;
-require './check_obs_events';
+use Test::More tests => 2;
 
-$BSConfig::bsdir = undef;
+require './check_obs_events';## no critic (Modules::RequireBarewordIncludes)
+our $VERSION = 0; # make perlcritic happy
+
+my $ret;
 my $expected;
+$BSConfig::bsdir = undef; ## no critic (Variables::ProhibitPackageVars)
 
 my $mcoe = Monitoring::Check::OBS::Events->new();
 
-$BSConfig::bsdir = 't/data/';
+$BSConfig::bsdir = 't/data/'; ## no critic (Variables::ProhibitPackageVars)
 
 # Checking OK
 $mcoe->config({
   directories_to_check => [
-    { 
+    {
       dir => 'not-existing-dir',
       warning => 4,
       critical => 5,
     }
   ]
 });
-eval {
+
+$ret = eval {
   $mcoe->check_dir_list();
 };
 
-is($@, "Error  while opening 't/data//events/not-existing-dir': No such file or directory\n", "Checking for exception if directory does not exist");
+$expected = "Error  while opening 't/data//events/not-existing-dir': No such file or directory\n";
+is($@, $expected, 'Checking for exception if directory does not exist');
+
+# checking ARGV
+{
+  local *STDERR = undef;
+  open STDERR, '>', '/dev/null' || croak "Could not open /dev/null: $!";
+  local *STDOUT = undef;
+  open STDOUT, '>', '/dev/null' || croak "Could not open /dev/null: $!";
+  local @ARGV=('--fail');
+  $ret = eval {
+    $mcoe->getopt();
+  };
+  $expected="Error: Wrong arguments!\n";
+  is($@, $expected,'Checking cli arguments');
+}
+
 
 exit 0;

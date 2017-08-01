@@ -1,13 +1,15 @@
 #!/usr/bin/perl
 
+
 use strict;
 use warnings;
+our $VERSION = 0; # make perlcritic happy
 use Test::More tests => 10;
-require './check_obs_events';
+require './check_obs_events'; ## no critic (Modules::RequireBarewordIncludes)
 my $expected;
 
 my $mcoe = Monitoring::Check::OBS::Events->new();
-ok(ref($mcoe) eq 'Monitoring::Check::OBS::Events', "Checking generation of Monitoring::Check::OBS::Events object");
+ok(ref($mcoe) eq 'Monitoring::Check::OBS::Events', 'Checking generation of Monitoring::Check::OBS::Events object');
 
 # testing default option values
 $mcoe->getopt();
@@ -18,7 +20,7 @@ is($mcoe->critical, 0, 'Checking default critical value');
 
 
 # testing long option values
-@ARGV = qw(--critical 20 --warning 10 --config t/data/00/config-1.yml);
+local @ARGV = qw(--critical 20 --warning 10 --config t/data/00/config-1.yml);
 $mcoe->getopt();
 
 is($mcoe->config_file, 't/data/00/config-1.yml', 'Checking cli option "--config" file');
@@ -26,7 +28,7 @@ is($mcoe->warning, 10, 'Checking cli option "--warning"');
 is($mcoe->critical, 20, 'Checking cli option for  "--critical"');
 
 # testing short option values
-@ARGV = qw(-c 90 -w 80);
+local @ARGV = qw(-c 90 -w 80);
 $mcoe->getopt();
 
 is($mcoe->warning, 80, 'Checking cli option "-w"');
@@ -46,7 +48,7 @@ $expected = {
   ]
 };
 
-is_deeply($mcoe->config, $expected, "Checking config file parsing");
+is_deeply($mcoe->config, $expected, 'Checking config file parsing');
 
 
 
