@@ -17,4 +17,4 @@ cover:
 	cover -test -ignore_re 't/.*\.t'
 
 critic:
-	perlcritic --profile .perlcriticrc check_obs_events
+	perlcritic --profile .perlcriticrc check_obs_events t/00*.t
