@@ -12,7 +12,7 @@ ok(ref($mcoe) eq 'Monitoring::Check::OBS::Events', "Checking generation of Monit
 # testing default option values
 $mcoe->getopt();
 
-is($mcoe->config_file, '/etc/nagios/check_obs_events.yml', 'Checking default config file');
+is($mcoe->config_file, '/etc/monitoring-plugins/check_obs_events.yml', 'Checking default config file');
 is($mcoe->warning, 0, 'Checking default warning value');
 is($mcoe->critical, 0, 'Checking default critical value');
 
