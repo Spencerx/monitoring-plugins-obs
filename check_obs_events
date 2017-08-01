@@ -69,7 +69,7 @@ sub new {
     {
       critical    => 0,
       warning     => 0,
-      config_file => '/etc/nagios/check_obs_events.yml',
+      config_file => '/etc/monitoring-plugins/check_obs_events.yml',
       results     => [],
       failed         => [],
       @args

@@ -1,5 +1,5 @@
 #
-# spec file for package monitoring-plugins-apache2
+# spec file for package monitoring-plugins-obs
 #
 # Copyright (c) 2013-2014 SUSE LINUX Products GmbH, Nuernberg, Germany.
 #
@@ -11,18 +11,18 @@
 # case the license is the MIT License). An "Open Source License" is a
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
-
+#
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-%define nagios_plugin_etc_dir /etc/nagios
+%define monitoring_plugins_etc_dir /etc/monitoring-plugins
 
-Name:           monitoring-plugin-obs
-Version:        0.0.0
+Name:           monitoring-plugins-obs
+Version:        0.0.1
 Release:        0
 License:        GPL-3.0
 Summary:        Nagios/NRPE compatible plugin for checking Open Build Service
-Url:            https://github.com/timdaman/check_docker
+Url:            https://github.com/openSUSE/monitoring-plugins-obs/
 Group:          System/Monitoring
 
 Source:         %{name}-%{version}.tar.xz
@@ -44,8 +44,8 @@ This a nagios/NRPE compatible plugin for checking Open Build Service
 
 %install
 export DESTDIR=%{buildroot}
-export NAGIOS_PLUGINDIR=%{nagios_plugindir}
-export NAGIOS_PLUGIN_ETC_DIR=%{nagios_plugin_etc_dir}
+export MONITORING_PLUGINS_DIR=%{nagios_plugindir}
+export MONITORING_PLUGINS_ETC_DIR=%{monitoring_plugins_etc_dir}
 make install
 
 %check
@@ -59,8 +59,8 @@ make test
 %doc README.md LICENSE
 %dir %{nagios_libdir}
 %dir %{nagios_plugindir}
-%dir %{nagios_plugin_etc_dir}
-%config (noreplace) %{nagios_plugin_etc_dir}/check_obs_events.yml
+%dir %{monitoring_plugins_etc_dir}
+%config (noreplace) %{monitoring_plugins_etc_dir}/check_obs_events.yml
 %{nagios_plugindir}/check_obs_events
 
 %changelog

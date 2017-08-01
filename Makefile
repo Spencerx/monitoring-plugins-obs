@@ -1,5 +1,5 @@
 NAGIOS_PLUGINDIR := /usr/lib/nagios/plugins
-NAGIOS_PLUGIN_ETC_DIR := /etc/nagios/
+MONITORING_PLUGINS_ETC_DIR := /etc/monitoring-plugins/
 all:
 
 install:
