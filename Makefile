@@ -16,5 +16,8 @@ test:
 cover:
 	cover -test -ignore_re 't/.*\.t' -report codecov
 
+cover_local:
+	cover -test -ignore_re 't/.*\.t'
+
 critic:
-	perlcritic --profile .perlcriticrc check_obs_events t/00*.t
+	perlcritic --profile .perlcriticrc check_obs_events t/*.t

@@ -4,12 +4,12 @@ use strict;
 use warnings;
 use Data::Dumper;
 use Test::More tests => 6;
-require './check_obs_events';
+require './check_obs_events';## no critic (Modules::RequireBarewordIncludes)
+our $VERSION = 0; # make perlcritic happy
 
-$BSConfig::bsdir = undef;
 my $expected;
-
 my $mcoe = Monitoring::Check::OBS::Events->new();
+$BSConfig::bsdir = undef; ## no critic (Variables::ProhibitPackageVars)
 
 $mcoe->{results} = [
   { dir => 'a', 'state' => 0},
@@ -36,12 +36,12 @@ $expected =[
 is_deeply($mcoe->failed, $expected, 'Checking method failed');
 is($mcoe->get_failed_max_state, 3, 'Checking maximum failed state');
 
-$BSConfig::bsdir = 't/data/';
+$BSConfig::bsdir = 't/data/'; ## no critic (Variables::ProhibitPackageVars)
 
 # Checking OK
 $mcoe->config({
   directories_to_check => [
-    { 
+    {
       dir => 'ok',
       warning => 4,
       critical => 5,
@@ -50,7 +50,7 @@ $mcoe->config({
 });
 
 $mcoe->check_dir_list();
-is($mcoe->get_failed_max_state, 0, "Checking state OK") || print Dumper($mcoe);
+is($mcoe->get_failed_max_state, 0, 'Checking state OK');
 
 # Testing WARNING
 $mcoe = Monitoring::Check::OBS::Events->new(warning => 3, critical => 10);
@@ -63,7 +63,7 @@ directories_to_check => [
 });
 
 $mcoe->check_dir_list();
-is($mcoe->get_failed_max_state, 1, "Checking state WARNING");
+is($mcoe->get_failed_max_state, 1, 'Checking state WARNING');
 
 # Testing CRITICAL
 $mcoe = Monitoring::Check::OBS::Events->new(warning => 3, critical => 9);
@@ -76,6 +76,6 @@ directories_to_check => [
 });
 
 $mcoe->check_dir_list();
-is($mcoe->get_failed_max_state, 2, "Checking state CRITICAL");
+is($mcoe->get_failed_max_state, 2, 'Checking state CRITICAL');
 
 exit 0;
