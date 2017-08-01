@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 use Test::More tests => 2;
+use Carp;
 
 require './check_obs_events';## no critic (Modules::RequireBarewordIncludes)
 our $VERSION = 0; # make perlcritic happy
@@ -36,10 +37,10 @@ is($@, $expected, 'Checking for exception if directory does not exist');
 
 # checking ARGV
 {
-  local *STDERR = undef;
-  open STDERR, '>', '/dev/null' || croak "Could not open /dev/null: $!";
-  local *STDOUT = undef;
-  open STDOUT, '>', '/dev/null' || croak "Could not open /dev/null: $!";
+  local *STDERR; ## no critic (Variables::RequireInitializationForLocalVars)
+  open STDERR, '>', '/dev/null' || croak("Could not open /dev/null: $!");
+  local *STDOUT; ## no critic (Variables::RequireInitializationForLocalVars)
+  open STDOUT, '>', '/dev/null' || croak("Could not open /dev/null: $!");
   local @ARGV=('--fail');
   $ret = eval {
     $mcoe->getopt();
