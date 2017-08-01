@@ -53,6 +53,8 @@ use warnings;
 use Getopt::Long qw/GetOptionsFromArray/;
 use Data::Dumper;
 use YAML qw/LoadFile/;
+use Carp;
+
 use BSConfiguration;
 
 # ATTRIBUTES
@@ -141,6 +143,7 @@ sub check_dir {
   my $warning       = (defined($dir->{warning})) ? $dir->{warning} : $self->warning;
   my $my_events_dir = "$events_dir/$dir->{dir}";
   my $state=0;
+  my $diff=0;
 
   opendir my $dh, $my_events_dir or die "Error  while opening '$my_events_dir': $!\n";
   my @all_files = readdir $dh;
@@ -148,14 +151,16 @@ sub check_dir {
   my @events = grep { ! m/^[.]/smx } @all_files;
   my $ev     = scalar @events;
 
-  if ($ev >= $warning)  { $state = 1 }
-  if ($ev >= $critical) { $state = 2 }
+  if ($ev >= $warning)  { $state = 1; $diff = $ev - $warning  }
+  if ($ev >= $critical) { $state = 2; $diff = $ev - $critical }
 
   push @{$self->results},
     {
-      state => $state,
-      msg   =>"$dir->{dir} contains $ev events.",
-      perfdata=>"'$dir->{dir}'=$ev;$warning;$critical"
+      state    => $state,
+      perfdata => "'$dir->{dir}'=$ev;$warning;$critical",
+      diff     => $diff,
+      name     => $dir->{dir},
+      events   => $ev
     }
   ;
 
@@ -164,25 +169,43 @@ sub check_dir {
 
 sub check_results {
   my ($self) = @_;
-  my $sname = { 0 => 'OK', 1 => 'WARNING', 2 => 'CRITICAL', 3 => 'UNKNOWN'};
   my $state = $self->get_failed_max_state();
 
   if ($state) {
-    print "$sname->{$state} - ".$self->format_output;
+    print $self->format_output_fail($state);
     exit $state
   } else {
-    my @perfdata;
-    for my $res (@{$self->{results}}) {
-      push @perfdata, $res->{perfdata};
-    }
-    print 'OK - all eventdirs checked | '.join('; ',@perfdata)."\n";
+    print $self->format_output_ok();
     exit 0;
   }
 }
 
-sub format_output {
-  my ($self) = @_;
-  return 'TO BE IMPLEMENTED';
+sub format_output_fail {
+  my ($self, $state) = @_;
+  my $sname = { 0 => 'OK', 1 => 'WARNING', 2 => 'CRITICAL', 3 => 'UNKNOWN'};
+  croak('State "'.($state || q{}).'" not known') if ! $state;
+  my $out="$sname->{$state} - ";
+
+  for my $res (sort { $b->{state} <=> $a->{state} or $b->{diff} <=> $a->{diff} } @{$self->results} ) {
+    next if ! $res->{state};
+    $out = "$out $res->{name} ($res->{state}/$res->{events}/$res->{diff})";
+  }
+
+  return "$out | ".$self->get_perfdata;
 }
 
+sub format_output_ok {
+  my ($self) = @_;
+  return 'OK - all eventdirs checked | '.$self->get_perfdata."\n";
+
+}
+
+sub get_perfdata {
+  my ($self) = @_;
+  my @perfdata;
+  for my $res (@{$self->{results}}) {
+     push @perfdata, $res->{perfdata};
+  }
+  return join '; ', @perfdata;
+}
 1;
