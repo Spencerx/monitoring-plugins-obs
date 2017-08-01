@@ -13,10 +13,10 @@ test:
 	@perl -It -c ./check_obs_events
 	@prove -It t/*.t
 
-cover:
+codecov:
 	cover -test -ignore_re 't/.*\.t' -report codecov
 
-cover_local:
+cover:
 	cover -test -ignore_re 't/.*\.t'
 
 critic:

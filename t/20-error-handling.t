@@ -3,13 +3,14 @@
 use strict;
 use warnings;
 use Data::Dumper;
-use Test::More tests => 2;
+use Test::More tests => 6;
 use Carp;
 
 require './check_obs_events';## no critic (Modules::RequireBarewordIncludes)
 our $VERSION = 0; # make perlcritic happy
 
 my $ret;
+my $got;
 my $expected;
 $BSConfig::bsdir = undef; ## no critic (Variables::ProhibitPackageVars)
 
@@ -49,5 +50,36 @@ is($@, $expected, 'Checking for exception if directory does not exist');
   is($@, $expected,'Checking cli arguments');
 }
 
+# checking non-existant config file
+{
+  $mcoe->config_file('non-existant-file.yml');
+  $ret = eval {
+    $mcoe->get_config();
+  };
+  $expected="Config file 'non-existant-file.yml' not found!\n";
+  is($@, $expected,'Checking exception if config file not found');
+}
 
+# checking empty directory list
+# only for code coverage
+$mcoe->config({});
+$mcoe->check_dir_list();
+$got = eval {
+ $mcoe->format_output_fail(0);
+};
+
+{
+  ## no critic (ValuesAndExpressions::RequireInterpolationOfMetachars)
+  ## no critic (ValuesAndExpressions::ProhibitEmptyQuotes)
+
+  like($@, qr/State\s""\snot\sknown\sat/smx, 'Checking $self->format_output_fail(0)');
+  $got = eval {
+   $mcoe->format_output_fail(undef);
+  };
+  like($@, qr/State\s""\snot\sknown\sat/smx, 'Checking $self->format_output_fail(undef)');
+  $got = eval {
+   $mcoe->format_output_fail('');
+  };
+  like($@, qr/State\s""\snot\sknown\sat/smx, 'Checking $self->format_output_fail("")');
+}
 exit 0;
