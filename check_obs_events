@@ -171,7 +171,9 @@ sub check_results {
     print "$sname->{$state} - ".$self->format_output;
     exit $state
   } else {
-    print "OK - all eventdirs checked\n";
+    my @perfdata;
+    push @perfdata, $_->{perfdata} for @{$self->{results}};
+    print "OK - all eventdirs checked | ".join("; ",@perfdata)."\n";
     exit 0;
   }
 }
