@@ -3,10 +3,10 @@ MONITORING_PLUGINS_ETC_DIR := /etc/monitoring-plugins/
 all:
 
 install:
-	[ -d $(DESTDIR)$(NAGIOS_PLUGIN_ETC_DIR) ] || mkdir -p $(DESTDIR)$(NAGIOS_PLUGIN_ETC_DIR)
+	[ -d $(DESTDIR)$(MONITORING_PLUGINS_ETC_DIR) ] || mkdir -p $(DESTDIR)$(MONITORING_PLUGINS_ETC_DIR)
 	[ -d $(DESTDIR)$(NAGIOS_PLUGINDIR) ] || mkdir -p $(DESTDIR)$(NAGIOS_PLUGINDIR)
-	[ -f $(DESTDIR)$(NAGIOS_PLUGIN_ETC_DIR)/check_obs_events.yml ] || \
-	 install -m 644 etc/check_obs_events.yml $(DESTDIR)$(NAGIOS_PLUGIN_ETC_DIR)/check_obs_events.yml
+	[ -f $(DESTDIR)$(MONITORING_PLUGINS_ETC_DIR)/check_obs_events.yml ] || \
+	 install -m 644 etc/check_obs_events.yml $(DESTDIR)$(MONITORING_PLUGINS_ETC_DIR)/check_obs_events.yml
 	install -m 755 check_obs_events $(DESTDIR)$(NAGIOS_PLUGINDIR)/check_obs_events
 
 test:
