@@ -12,3 +12,9 @@ install:
 test:
 	@perl -It -c ./check_obs_events
 	@prove -It t/*.t
+
+cover:
+	cover -test -ignore_re 't/.*\.t'
+
+critic:
+	perlcritic --profile .perlcriticrc check_obs_events
