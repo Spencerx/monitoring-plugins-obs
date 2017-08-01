@@ -14,7 +14,7 @@ test:
 	@prove -It t/*.t
 
 cover:
-	cover -test -ignore_re 't/.*\.t'
+	cover -test -ignore_re 't/.*\.t' -report codecov
 
 critic:
 	perlcritic --profile .perlcriticrc check_obs_events t/00*.t
